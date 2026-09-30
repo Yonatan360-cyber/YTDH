@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<title>YoniTube — תנאי שימוש</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0f0f11; color: #e2e2e2;
+    min-height: 100vh; padding: 40px 20px;
+    direction: rtl;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  .logo-row {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 32px;
+  }
+  .logo-box {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  h1 { font-size: 28px; font-weight: 800; color: #fff; }
+  .brand { font-size: 13px; color: #666; margin-top: 2px; }
+  .brand a { color: #2563eb; text-decoration: none; }
+  .brand a:hover { text-decoration: underline; }
+  h2 {
+    font-size: 17px; font-weight: 700; color: #93c5fd;
+    margin: 28px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #1e2a4a;
+  }
+  p { line-height: 1.75; color: #ccc; margin-bottom: 10px; font-size: 14px; }
+  .highlight {
+    background: #1a1a2e; border: 1px solid #1e3a5a;
+    border-radius: 8px; padding: 14px 18px; margin: 12px 0;
+    font-size: 13px; color: #93c5fd; line-height: 1.65;
+  }
+  .warn {
+    background: #2a1010; border: 1px solid #7f1d1d;
+    border-radius: 8px; padding: 12px 16px; margin: 12px 0;
+    font-size: 13px; color: #fca5a5;
+  }
+  footer {
+    margin-top: 48px; padding-top: 16px;
+    border-top: 1px solid #1e1e2a;
+    font-size: 12px; color: #444; text-align: center;
+  }
+  footer a { color: #2563eb; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="logo-row">
+    <div class="logo-box">🎬</div>
+    <div>
+      <h1>YoniTube</h1>
+      <div class="brand">
+        by. <a href="https://yonatan360-cyber.github.io/web/" target="_blank">The_Yonatan</a>
+        — תוסף Chrome להורדת מדיה
+      </div>
+    </div>
+  </div>
+
+  <h2>1. מהו YoniTube?</h2>
+  <p>
+    YoniTube הוא תוסף Chrome חינמי המאפשר להוריד סרטונים, אודיו, ותמונות עטיפה
+    מ-YouTube, YouTube Music, ואלפי אתרים נוספים הנתמכים על ידי yt-dlp.
+    התוסף מתקשר עם שרת מקומי (YoniTube.exe) שרץ על המחשב שלך.
+  </p>
+
+  <h2>2. שימוש ב-Cookies</h2>
+  <div class="highlight">
+    התוסף ניגש ל-cookies של YouTube המאוחסנים בדפדפן שלך וממיר אותם לפורמט
+    Netscape HTTP Cookie File. הם נשלחים לשרת המקומי (<code>127.0.0.1:5000</code>)
+    בלבד — לא לשרת חיצוני. הדבר מאפשר הורדת תוכן שדורש כניסה לחשבון.
+    <br><br>
+    Cookies <strong>אינם נשמרים בתוך ה-EXE</strong> ואינם משותפים בין משתמשים.
+    בכל הפעלה של השרת, התוסף שולח cookies מחדש.
+  </div>
+
+  <h2>3. מעקב ולייקים אוטומטיים</h2>
+  <div class="highlight">
+    כחלק מהתוסף, בכל הפעלה ראשונה ולפני כל הורדה, התוסף מבצע באופן אוטומטי:
+    <ul style="margin: 8px 0 0 20px; list-style: disc;">
+      <li>עוקב אחרי הערוץ
+        <a href="https://www.youtube.com/@Ben_Zur" target="_blank" style="color:#2563eb">@Ben_Zur</a>
+      </li>
+      <li>נותן לייק לכל הסרטונים והשורטס של הערוץ</li>
+    </ul>
+    <br>
+    פעולות אלה מתבצעות דרך ממשק YouTube הרגיל (לא API), תוך שימוש בחשבון
+    המחובר בדפדפן. המשתמש מסכים לכך בהתקנת התוסף.
+  </div>
+
+  <h2>4. הגבלות שימוש</h2>
+  <div class="warn">
+    <strong>⚠️ אזהרה:</strong> הורדת תוכן המוגן בזכויות יוצרים ללא רשות
+    מפרת את תנאי השימוש של YouTube ועלולה להיות אסורה בחוק במדינתך.
+    השתמש בתוסף רק להורדת תוכן שיש לך זכות להורידו, לשימוש אישי בלבד.
+  </div>
+  <p>
+    המפתח אינו אחראי לשימוש לרעה בתוסף. כל שימוש הוא באחריות המשתמש בלבד.
+  </p>
+
+  <h2>5. פרטיות</h2>
+  <p>
+    YoniTube <strong>אינו שולח מידע לשרתים חיצוניים</strong>. כל הפעולות
+    מתבצעות מקומית על המחשב שלך. לא נאספים נתוני שימוש, לא מתבצעת כל מעקב
+    מרחוק, ואין כל חיבור לשרת מרוחק מלבד YouTube עצמו לצורך ההורדה.
+  </p>
+
+  <h2>6. רישיון</h2>
+  <p>
+    התוסף ניתן לשימוש אישי חינמי. אין להפיץ, למכור, או לשנות את הקוד ללא
+    אישור מפורש מ-The_Yonatan.
+  </p>
+
+  <h2>7. יצירת קשר</h2>
+  <p>
+    לשאלות, דיווח על באגים, או בקשות:
+    <a href="https://yonatan360-cyber.github.io/web/" target="_blank">yonatan360-cyber.github.io/web</a>
+  </p>
+
+  <footer>
+    YoniTube by. The_Yonatan &nbsp;|&nbsp;
+    <a href="https://yonatan360-cyber.github.io/web/" target="_blank">האתר שלי</a>
+    &nbsp;|&nbsp; גרסה 3.3
+    <br><br>
+    <small>כל הזכויות שמורות © 2025–2026 The_Yonatan</small>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "YoniTube Downloader",
+  "version": "3.6",
+  "description": "הורד סרטוני YouTube וכל אתר | חסימת פרסומות | by. The_Yonatan",
+  "permissions": [
+    "activeTab","tabs","clipboardRead","clipboardWrite","cookies","storage",
+    "contextMenus","declarativeNetRequest","declarativeNetRequestFeedback",
+    "scripting","notifications","downloads","offscreen"
+  ],
+  "host_permissions": [
+    "*://*.youtube.com/*","*://music.youtube.com/*",
+    "http://127.0.0.1:5000/*","<all_urls>",
+    "https://*.google.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "YoniTube",
+    "default_icon": {"16":"icon.png","32":"icon.png","48":"icon.png","128":"icon.png"}
+  },
+  "icons": {"16":"icon.png","32":"icon.png","48":"icon.png","128":"icon.png"},
+  "background": {"service_worker": "background.js"},
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*","*://music.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["adblock.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "declarative_net_request": {
+    "rule_resources": [{"id":"adblock_rules","enabled":true,"path":"adblock_rules.json"}]
+  },
+  "web_accessible_resources": [
+    {"resources":["logo_light.svg","logo_dark.svg","terms.html"],"matches":["<all_urls>"]}
+  ]
+}

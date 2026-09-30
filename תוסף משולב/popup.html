@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="popup.css">
+</head>
+<body class="dark">
+
+<div class="app-container">
+  <!-- Header -->
+  <div class="app-header">
+    <div class="header-left">
+      <img src="logo_dark.svg" alt="YoniTube" class="logo-simple">
+    </div>
+    <div class="header-right">
+      <div class="status-indicator" id="statusIndicator">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">בודק שרת...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar" id="statusBar"></div>
+
+  <!-- Navigation -->
+  <div class="nav-bar">
+    <button class="nav-item active" data-tab="download">
+      <span class="nav-icon">⬇</span>
+      <span class="nav-label">הורדה</span>
+    </button>
+    <button class="nav-item" data-tab="queue">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">תור</span>
+    </button>
+    <button class="nav-item" data-tab="watch">
+      <span class="nav-icon">👁</span>
+      <span class="nav-label">מעקב</span>
+    </button>
+    <button class="nav-item" data-tab="button">
+      <span class="nav-icon">🎨</span>
+      <span class="nav-label">כפתור</span>
+    </button>
+    <button class="nav-item" data-tab="settings">
+      <span class="nav-icon">⚙</span>
+      <span class="nav-label">הגדרות</span>
+    </button>
+  </div>
+
+  <!-- Content Area -->
+  <div class="content-area">
+    
+    <!-- Download Tab -->
+    <div class="tab-content active" id="tab-download">
+      <div class="input-section">
+        <div class="url-input-wrapper">
+          <input type="text" id="urlInput" class="url-input" placeholder="הדבק קישור YouTube...">
+          <button class="clear-btn" id="clearBtn" style="display:none">✕</button>
+          <button class="paste-btn" id="pasteBtn">הדבק</button>
+        </div>
+      </div>
+
+      <!-- Playlist Banner -->
+      <div id="plBanner" class="playlist-banner" style="display:none">
+        <span class="playlist-icon">📋</span>
+        <span class="playlist-text">פלייליסט/ערוץ</span>
+        <div class="content-type-pills" id="ctPills">
+          <button class="type-pill active" data-ct="all">הכל</button>
+          <button class="type-pill" data-ct="videos">סרטונים</button>
+          <button class="type-pill" data-ct="shorts">שורטס</button>
+        </div>
+        <button id="plPickBtn" class="pick-btn">בחר ▾</button>
+        <button id="plAllBtn" class="download-all-btn">⬇ הכל</button>
+      </div>
+
+      <!-- Format Selection -->
+      <div class="format-section">
+        <div class="section-title">פורמט</div>
+        <div class="format-grid" id="formatGrid">
+          <button class="format-card active" data-type="video">
+            <span class="format-icon">🎬</span>
+            <span class="format-name">וידאו</span>
+          </button>
+          <button class="format-card" data-type="audio">
+            <span class="format-icon">🎵</span>
+            <span class="format-name">אודיו</span>
+          </button>
+          <button class="format-card" data-type="thumb">
+            <span class="format-icon">📷</span>
+            <span class="format-name">תמונה</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Video Options -->
+      <div class="options-section" id="videoOptions">
+        <div class="option-group">
+          <div class="option-label">איכות</div>
+          <div class="quality-buttons">
+            <button class="quality-btn active" data-h="">🌟</button>
+            <button class="quality-btn" data-h="2160">4K</button>
+            <button class="quality-btn" data-h="1080">1080</button>
+            <button class="quality-btn" data-h="720">720</button>
+            <button class="quality-btn" data-h="480">480</button>
+            <button class="quality-btn" data-h="360">360</button>
+          </div>
+        </div>
+        <div class="option-group">
+          <div class="option-label">פורמט וידאו</div>
+          <div class="format-chips">
+            <button class="chip active" data-fmt="mp4">MP4</button>
+            <button class="chip" data-fmt="mkv">MKV</button>
+            <button class="chip" data-fmt="webm">WEBM</button>
+            <button class="chip" data-fmt="mov">MOV</button>
+            <button class="chip" data-fmt="avi">AVI</button>
+            <button class="chip" data-fmt="flv">FLV</button>
+            <button class="chip" data-fmt="mpg">MPG</button>
+            <button class="chip" data-fmt="3gp">3GP</button>
+            <button class="chip" data-fmt="ts">TS</button>
+            <button class="chip" data-fmt="wmv">WMV</button>
+          </div>
+        </div>
+        <div class="option-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="enableSubs">
+            <span class="checkbox-text">💬 הורד עם כתוביות</span>
+          </label>
+          <select id="subLang" class="select-input" style="margin-top:6px" disabled>
+            <option value="he">עברית</option>
+            <option value="en">English</option>
+            <option value="ar">עربية</option>
+            <option value="ru">Русский</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+            <option value="de">Deutsch</option>
+            <option value="zh-Hans">中文</option>
+            <option value="ja">日本語</option>
+            <option value="pt">Português</option>
+            <option value="it">Italiano</option>
+            <option value="ko">한국어</option>
+            <option value="auto">כל השפות הזמינות (auto)</option>
+          </select>
+        </div>
+        <div class="option-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="enableRes">
+            <span class="checkbox-text">📐 רזולוציה מותאמת אישית</span>
+          </label>
+          <div class="resolution-inputs" id="resInputs">
+            <input type="number" id="resW" class="res-input" placeholder="W" min="1">
+            <span class="res-separator">×</span>
+            <input type="number" id="resH" class="res-input" placeholder="H" min="1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Audio Options -->
+      <div class="options-section" id="audioOptions" style="display:none">
+        <div class="option-group">
+          <div class="option-label">פורמט אודיו</div>
+          <div class="format-chips">
+            <button class="chip active" data-fmt="mp3">MP3</button>
+            <button class="chip" data-fmt="m4a">M4A</button>
+            <button class="chip" data-fmt="flac">FLAC</button>
+            <button class="chip" data-fmt="wav">WAV</button>
+            <button class="chip" data-fmt="aac">AAC</button>
+            <button class="chip" data-fmt="ogg">OGG</button>
+            <button class="chip" data-fmt="opus">OPUS</button>
+            <button class="chip" data-fmt="wma">WMA</button>
+            <button class="chip" data-fmt="aiff">AIFF</button>
+          </div>
+        </div>
+        <div class="option-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="embedThumb">
+            <span class="checkbox-text">🖼 הטמע תמונת עטיפה</span>
+          </label>
+        </div>
+        <div class="option-group">
+          <div class="option-label">קצב סיביות</div>
+          <select id="mp3Bitrate" class="select-input">
+            <option value="">אוטומטי</option>
+            <option value="320k">320kbps</option>
+            <option value="256k">256kbps</option>
+            <option value="192k">192kbps</option>
+            <option value="128k">128kbps</option>
+            <option value="96k">96kbps</option>
+            <option value="64k">64kbps</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Thumbnail Options -->
+      <div class="options-section" id="thumbOptions" style="display:none">
+        <div class="option-group">
+          <div class="option-label">רזולוציה (אופציונלי)</div>
+          <div class="resolution-inputs">
+            <input type="number" id="thumbW" class="res-input" placeholder="W" min="1">
+            <span class="res-separator">×</span>
+            <input type="number" id="thumbH" class="res-input" placeholder="H" min="1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Download Button -->
+      <div class="download-section">
+        <button id="dlBtn" class="download-btn">
+          <span class="btn-icon">⬇</span>
+          <span class="btn-text">הורד</span>
+        </button>
+      </div>
+
+      <div id="status" class="status-message"></div>
+      <div class="terms-link"><a id="termsLink" href="#">תנאי שימוש</a></div>
+    </div>
+
+    <!-- Queue Tab -->
+    <div class="tab-content" id="tab-queue">
+      <div class="queue-toolbar">
+        <button class="toolbar-btn stop-btn" id="qKillBtn">🛑 עצור הכל</button>
+        <button class="toolbar-btn clear-btn" id="qClearBtn">🗑 נקה</button>
+        <span class="queue-count" id="qCount"></span>
+      </div>
+      <div id="queueList" class="queue-list">
+        <div class="empty-state">🎵 אין הורדות</div>
+      </div>
+    </div>
+
+    <!-- Watch Tab -->
+    <div class="tab-content" id="tab-watch">
+      <div class="add-channel-section">
+        <div class="section-title">📡 מעקב אוטומטי אחר ערוצים ופלייליסטים</div>
+        <div class="url-input-wrapper" style="gap:6px;flex-wrap:wrap">
+          <input type="text" id="watchUrl" class="url-input" placeholder="https://www.youtube.com/@channel..." dir="ltr" style="flex:1;min-width:180px">
+          <select id="watchFormat" class="select-input" style="width:auto;padding:6px 8px">
+            <option value="video">🎬 וידאו</option>
+            <option value="audio">🎵 אודיו</option>
+            <option value="thumb">📷 תמונה</option>
+          </select>
+          <button id="watchAddBtn" class="action-btn" style="padding:6px 12px">➕ הוסף</button>
+        </div>
+      </div>
+      <div id="watchList" class="watch-list"></div>
+      <div class="info-text" style="margin-top:10px;text-align:center">⚡ השרת בודק ומוריד תכנים חדשים אוטומטית בכל 10 דקות</div>
+    </div>
+
+    <!-- Button Editor Tab -->
+    <div class="tab-content" id="tab-button">
+      <div class="button-editor-section">
+        <div class="section-title">🎨 עיצוב כפתור ההורדה</div>
+        
+        <div class="field">
+          <label for="btnText">טקסט הכפתור (ריק לסמל בלבד):</label>
+          <input type="text" id="btnText" class="text-input" value="">
+          <div id="symbolKeyboard" class="symbol-keyboard">
+            <div class="symbol-cats">
+              <button type="button" class="sym-cat-btn active" data-cat="media">🎬 מדיה</button>
+              <button type="button" class="sym-cat-btn" data-cat="download">⬇ הורדה</button>
+              <button type="button" class="sym-cat-btn" data-cat="arrows">➡ חצים</button>
+              <button type="button" class="sym-cat-btn" data-cat="shapes">● צורות</button>
+              <button type="button" class="sym-cat-btn" data-cat="symbols">✓ סימנים</button>
+              <button type="button" class="sym-cat-btn" data-cat="money">₪ כסף</button>
+              <button type="button" class="sym-cat-btn" data-cat="math">∞ מתמטיקה</button>
+              <button type="button" class="sym-cat-btn" data-cat="emoji">🔥 אמוגי</button>
+              <button type="button" class="sym-cat-btn" data-cat="text">A טקסט</button>
+              <button type="button" class="sym-cat-btn" data-cat="all">🌐 הכל</button>
+            </div>
+            <div id="symbolGrid" class="symbol-grid"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>צבע כפתור:</label>
+          <div class="color-row">
+            <input type="color" id="btnColor" class="color-input" value="#f2f2f2">
+            <button class="dropper-btn" id="pickColorBtn" title="דגום צבע מהמסך">🧪</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>צבע טקסט/סמל:</label>
+          <div class="color-row">
+            <input type="color" id="textColor" class="color-input" value="#0f0f0f">
+            <button class="dropper-btn" id="pickTextColorBtn" title="דגום צבע טקסט">🧪</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="btnShape">צורת הכפתור:</label>
+          <select id="btnShape" class="select-input">
+            <option value="0px">מלבן חד</option>
+            <option value="8px">מלבן עם פינות</option>
+            <option value="20px">פינות מעוגלות</option>
+            <option value="50%" selected>עיגול (גלולה לחלוטין)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="borderWidth">עובי מסגרת (0 = ללא):</label>
+          <input type="number" id="borderWidth" class="number-input" value="0" min="0" max="10">
+        </div>
+
+        <div class="field">
+          <label>צבע מסגרת:</label>
+          <div class="color-row">
+            <input type="color" id="borderColor" class="color-input" value="#ffffff">
+            <button class="dropper-btn" id="pickBorderColorBtn" title="דגום צבע מסגרת">🧪</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="btnShadowOn">💫 צללית כפתור:</label>
+          <div class="subrow">
+            <input type="checkbox" id="btnShadowOn" checked>
+            <input type="range" id="btnShadowSize" min="0" max="30" value="4">
+            <span id="btnShadowSizeLbl" class="small">4px</span>
+          </div>
+          <div class="color-row">
+            <input type="color" id="btnShadowColor" class="color-input" value="#000000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="textShadowOn">✨ צללית טקסט/סמל:</label>
+          <div class="subrow">
+            <input type="checkbox" id="textShadowOn">
+            <input type="range" id="textShadowSize" min="0" max="15" value="1">
+            <span id="textShadowSizeLbl" class="small">1px</span>
+          </div>
+          <div class="color-row">
+            <input type="color" id="textShadowColor" class="color-input" value="#000000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>תצוגה מקדימה <span style="font-size:10px;color:var(--text-muted)">(לחץ לגרור והצבה מיקוד בדף יוטיוב)</span>:</label>
+          <div id="previewBox" class="preview-box" title="גרור החוצה או לחץ כדי להציב את הכפתור במיקום הנכון בדף יוטיוב">
+            <div id="previewBtn" draggable="true"></div>
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <button id="addBtn" class="action-btn">➕ הוסף / עדכן כפתור ביוטיוב</button>
+          <button id="copyBtnStyle" class="action-btn">📋 העתק עיצוב כפתור קיים</button>
+          <button id="deleteElementBtn" class="action-btn" style="background:linear-gradient(135deg,#78350f,#92400e);color:#fcd34d;border-color:#b45309">🗑️ מחיקת אלמנט מיותר</button>
+          <button id="resetAllBtn" class="danger-btn">⚠ איפוס כל הכפתורים ביוטיוב</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-content" id="tab-settings">
+      <div class="settings-section">
+        <div class="section-title">🎨 ממשק</div>
+        <div class="setting-row">
+          <span class="setting-label">מצב כהה</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="darkMode" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="section-title">⚡ הורדה</div>
+        <div class="setting-row">
+          <span class="setting-label">מהירות</span>
+          <select id="defSpeed" class="select-input">
+            <option value="slow">🐢 אנטי-בוט (4x)</option>
+            <option value="medium" selected>⚡ בטוחה (8x)</option>
+            <option value="fast">🚀 מקסימום (16x)</option>
+          </select>
+        </div>
+        <div class="speed-description" id="spdDesc">⚡ 8 חיבורים — מאוזן ומהיר</div>
+        <div class="setting-row">
+          <span class="setting-label">📁 תיקיית הורדות</span>
+        </div>
+        <div class="path-input-row">
+          <input type="text" id="basePath" class="path-input" placeholder="לחץ לבחירת נתיב..." readonly>
+          <button id="savePathBtn" class="action-btn">שמור</button>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">תיקייה לפי פלייליסט</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="folderPlaylist">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">תיקייה לפי ערוץ</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="folderChannel">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">הצג תמונות בתור</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="showQueueThumbs" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="settings-section">
+        <button class="danger-btn" id="factoryResetBtn">⚠ איפוס יצרן</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
