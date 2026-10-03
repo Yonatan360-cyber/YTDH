@@ -709,12 +709,19 @@ async function _fetchPl(){
     document.getElementById('plCount').textContent=plItems.length+' פריטים';
     document.getElementById('plControls').style.display='flex';
     const list=document.getElementById('plList');list.innerHTML='';
+    if(!plItems.length){list.innerHTML='<div class="pl-loader">אין פריטים להצגה</div>';return;}
     plItems.forEach((item,idx)=>{
       const row=document.createElement('div');row.className='pl-item';
       const cb=document.createElement('input');cb.type='checkbox';cb.checked=true;cb.dataset.idx=idx;
+      row.appendChild(cb);
+      if(item.thumbnail){
+        const img=document.createElement('img');img.className='pl-item-thumb';img.src=item.thumbnail;
+        img.onerror=()=>{img.style.display='none';};
+        row.appendChild(img);
+      }
       const t=document.createElement('div');t.className='pl-item-title';t.textContent=item.title||item.id;
       const dur=document.createElement('div');dur.className='pl-item-dur';dur.textContent=item.duration||'';
-      row.appendChild(cb);row.appendChild(t);row.appendChild(dur);
+      row.appendChild(t);row.appendChild(dur);
       row.addEventListener('click',e=>{if(e.target!==cb)cb.checked=!cb.checked;});
       list.appendChild(row);
     });

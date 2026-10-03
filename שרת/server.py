@@ -1,15 +1,18 @@
 """
-YoniTube Server v26 — by. The_Yonatan
+YoniTube Server v27 — by. The_Yonatan
 תיקונים עיקריים:
 • שמות קבצים תקינים — rename משתמש ב-basename בלבד
 • כתוביות עובדות — MKV תמיד + srt/vtt
 • MP4 תמיד H.264+AAC — אין מסך שחור, אין חסר שמע
-• aria2c / ffmpeg / yt-dlp — הורדה אוטומטית אם חסרים
+• aria2c / ffmpeg / yt-dlp — הורדה אוטומטית אם חסרים + עדכון אוטומטי של yt-dlp
 • התקדמות חיה — active_map מתעדכן עם bytes/speed בכל קו
 • פס כחול בהורדה (צהוב רק בהמרה אמיתית)
 • עטיפה מיידית מ-i.ytimg + כותרת מהלקוח
 • AVI: mpeg4+mp3 (לא libx264/aac)
 • מניעת כפילויות בתור + watch_check לא מציף
+• player_client=default — לקוחות android/ios מתים, ניסיון חוזר עם קבוצה רחבה
+• retry על "page needs to be reloaded" / PO token / format not available
+• תיקון seed_title ב-/download ריבוי פורמטים + זיהוי שורטס ב-list_playlist
 """
 import subprocess, os, sys, urllib.request, shutil, hashlib, json, glob, tempfile
 import threading, re, time, random, psutil, multiprocessing, logging
@@ -103,9 +106,26 @@ def _dl_zip(url, dest_dir, filenames, label):
         except: pass
         return False
 
+def _ytdlp_version():
+    try:
+        r=subprocess.run([YT_DLP,'--version'],capture_output=True,text=True,timeout=30,encoding='utf-8',errors='replace')
+        if r.returncode==0: return (r.stdout or '').strip()
+    except Exception: pass
+    return ''
+
+def _ytdlp_latest():
+    try:
+        req=urllib.request.Request('https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest',
+                                   headers={'User-Agent':'YoniTube'})
+        with urllib.request.urlopen(req,timeout=15) as resp:
+            return (json.load(resp).get('tag_name') or '').strip()
+    except Exception as e:
+        _p(f'  ⚠️ yt-dlp update check: {e}')
+        return ''
+
 def ensure_deps():
     global ARIA2C
-    if not os.path.exists(YT_DLP) or os.path.basename(YT_DLP) == 'yt-dlp.exe' and not os.path.exists(YT_DLP):
+    if not os.path.exists(YT_DLP):
         _dl('https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe',YT_DLP,'yt-dlp')
     if not os.path.exists(FFMPEG) or not os.path.exists(FFPROBE):
         _dl_zip('https://github.com/GyanD/codexffmpeg/releases/download/7.1/ffmpeg-7.1-essentials_build.zip',
@@ -114,15 +134,18 @@ def ensure_deps():
         ok=_dl_zip('https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-64bit-build1.zip',
                    _BD,{'aria2c.exe'},'aria2c')
         if ok: ARIA2C=os.path.join(_BD,'aria2c.exe')
-    # yt-dlp self-update disabled to keep the server stable and offline-friendly
-    try:
-        r=subprocess.run([YT_DLP,'--version','--no-update'],capture_output=True,text=True,timeout=30,encoding='utf-8',errors='replace')
-        if r.returncode == 0: _p('  ✅ yt-dlp זמין')
-    except Exception as e:
-        _p(f'  ⚠️ yt-dlp version check failed: {e}')
+    # Auto-update yt-dlp when a newer release exists — YouTube breaks old builds fast
+    ver=_ytdlp_version()
+    latest=_ytdlp_latest() if ver else ''
+    if ver and latest and ver!=latest:
+        _p(f'  🔄 מעדכן yt-dlp {ver} → {latest}')
+        if _dl('https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe',YT_DLP,'yt-dlp'):
+            ver=_ytdlp_version()
+    if ver: _p(f'  ✅ yt-dlp זמין (v{ver})')
+    else: _p('  ⚠️ yt-dlp לא זמין')
 
 _p('\n'+'═'*60)
-_p('  YoniTube Server v26  by. The_Yonatan')
+_p('  YoniTube Server v27  by. The_Yonatan')
 _p('═'*60)
 ensure_deps()
 for n,p in [('yt-dlp',YT_DLP),('ffmpeg',FFMPEG),('ffprobe',FFPROBE)]:
@@ -347,7 +370,8 @@ _TOTP = re.compile(r'of\s+~?\s*(\d+\.?\d*)\s*(GiB|MiB|KiB|B)')
 _UNIT ={'GiB':1<<30,'MiB':1<<20,'KiB':1<<10,'B':1,'GB':10**9,'MB':10**6,'KB':10**3}
 _ARIA = re.compile(r'\[#[0-9a-f]+\s+[\d.]+\w+/[\d.]+\w+\((\d+)%\)[^\]]*DL:(\S+)(?:[^\]]*ETA:(\S+))?')
 _DEST = re.compile(r'(?i)destination:\s*(.+)')
-_BOT  = ['sign in to confirm','confirm you are not a bot','too many requests','429','403 forbidden']
+_BOT  = ['sign in to confirm','confirm you are not a bot','too many requests','429','403 forbidden',
+         'needs to be reloaded','po token','temporarily unavailable','try again later']
 _SHOW = ['[download]','[ffmpeg]','[merger]','destination:','error','warning','has already','deleting']
 
 def _parse_pct(line):
@@ -443,8 +467,11 @@ def build_cmd(url, fmt, h=None, w=None, attempt=0, uid='x',
         tmpl=os.path.join(out_dir,'%(channel)s',f'%(title)s.{uid}.%(ext)s')
     sp=_SPD.get(speed,_SPD['medium'])
     slp=0
-    # android/ios first — web-only often → "Requested format is not available"
-    clients='android,ios,mweb,web' if attempt==0 else 'ios,android,tv,web'
+    # android/ios clients are dead on current YouTube — 'default' lets yt-dlp pick
+    # (currently visionos, the client that works without PO token). Retries widen
+    # the set — with real browser cookies the web-based clients may still succeed.
+    _CLIENT_SETS=['default','visionos,tv,mweb,web','all']
+    clients=_CLIENT_SETS[min(attempt,len(_CLIENT_SETS)-1)]
     base=[
         YT_DLP,'--no-update','--no-warnings','-o',tmpl,
         '--no-playlist','--no-mtime','--windows-filenames','--encoding','utf-8','--newline',
@@ -910,7 +937,7 @@ def expand_playlist(url, fmt, content_type='all'):
         url=urlunparse((p.scheme,p.netloc,p.path,'',urlencode({k:v[0] for k,v in qs.items()}),''))
     except: pass
     cmd=[YT_DLP,'--flat-playlist','--dump-json','--no-warnings','--ignore-errors','--no-check-certificate',
-         '--extractor-args','youtube:player_client=android,web']+COOKIE_ARGS+[url]
+         '--extractor-args','youtube:player_client=mweb,web']+COOKIE_ARGS+[url]
     try:
         r=subprocess.run(cmd,capture_output=True,text=True,timeout=120,encoding='utf-8',errors='replace',env=_utfenv())
         items=[]; pl_title=''; channel=''
@@ -965,7 +992,7 @@ def _is_pl(url):
 # ── Routes ─────────────────────────────────────────────────────────
 @app.route('/',methods=['GET'])
 def home():
-    return jsonify({'version':'v26','ok':True,'workers':MAX_W,'queue':task_queue.qsize(),
+    return jsonify({'version':'v27','ok':True,'workers':MAX_W,'queue':task_queue.qsize(),
                     'active':stats['active'],'aria2c':bool(ARIA2C and os.path.exists(ARIA2C))})
 
 @app.route('/ping',methods=['GET'])
@@ -1044,6 +1071,9 @@ def download():
                        path_baked=False,audio_quality=audio_quality,
                        source=_site(url),added=time.strftime('%H:%M:%S'),content_type=content_type)
 
+        seed_title=_seed_title(url, client_title)
+        seed_thumb=client_thumb or _yt_thumb(url)
+
         # Support multiple formats in a single request
         formats = d.get('formats')
         if formats and isinstance(formats, list):
@@ -1120,8 +1150,6 @@ def download():
         if _already_queued(url,fmt,h,w):
             return jsonify({'status':'duplicate','format':fmt,'msg':'כבר בתור'}),200
 
-        seed_title=_seed_title(url, client_title)
-        seed_thumb=client_thumb or _yt_thumb(url)
         # Single YT video + folder_channel → use %(channel)s template (path_baked=False, folder_ch=True)
         uid=make_uid(url,fmt,h,w)
         task={**base_task,'url':url,'uid':uid,'title':seed_title,'thumb':seed_thumb}
@@ -1134,7 +1162,7 @@ def download():
         def _meta(task=task,uid=uid,url=url):
             try:
                 r=subprocess.run([YT_DLP,'--no-update','--dump-json','--no-playlist','--quiet','--no-warnings',
-                                  '--skip-download','--extractor-args','youtube:player_client=android,web']+COOKIE_ARGS+[url],
+                                  '--skip-download','--extractor-args','youtube:player_client=default']+COOKIE_ARGS+[url],
                                  capture_output=True,text=True,timeout=30,encoding='utf-8',errors='replace',env=_utfenv())
                 for line in r.stdout.strip().splitlines():
                     if not line: continue
@@ -1250,8 +1278,11 @@ def list_playlist():
                 if not vid: continue
                 v=vid if vid.startswith('http') else f'https://www.youtube.com/watch?v={vid}'
                 dur=float(e.get('duration') or 0)
-                if content_type=='shorts' and dur>60: continue
-                if content_type=='videos' and 0<dur<=60: continue
+                # Same short detection as expand_playlist — shorts often have dur=0 in flat lists
+                wu=e.get('webpage_url','') or ''
+                is_short='/shorts/' in wu or (e.get('extractor_key')=='Youtube' and 0<dur<=60)
+                if content_type=='shorts' and not is_short: continue
+                if content_type=='videos' and is_short: continue
                 ds=''
                 if dur:
                     mm,ss=divmod(int(dur),60); hh,mm=divmod(mm,60)
